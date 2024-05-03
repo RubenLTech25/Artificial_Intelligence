@@ -1,0 +1,19 @@
+#Cat code using Python
+import openai
+        openai.api_key = 'your_API_key_here'
+        response = openai.Image.create(
+              prompt="an ancient Egyptian hieroglyphic of a cat",
+              n=1,
+              size="1024x1024"
+        )
+        image_url = response['data'][0]['url']
+        image_url
+import openai
+        openai.api_key = 'your_API_key_here'
+        response = openai.Image.create(
+              prompt="an ancient Egyptian hieroglyphic of a cat",
+              n=1,
+              size="1024x1024"
+        )
+        image_url = response['data'][0]['url']
+        image_url
