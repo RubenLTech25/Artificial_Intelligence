@@ -1,97 +1,57 @@
-{
-  "nbformat": 4,
-  "nbformat_minor": 0,
-  "metadata": {
-    "colab": {
-      "provenance": [],
-      "authorship_tag": "ABX9TyPZSGNOHce7SXfg56rhDoFT",
-      "include_colab_link": true
-    },
-    "kernelspec": {
-      "name": "python3",
-      "display_name": "Python 3"
-    },
-    "language_info": {
-      "name": "python"
-    }
-  },
-  "cells": [
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "view-in-github",
-        "colab_type": "text"
-      },
-      "source": [
-        "<a href=\"https://colab.research.google.com/github/RubenLTech25/Artificial_Intelligence/blob/main/Cat%20Picture%20Generator\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "source": [
-        "# Import necessary libraries\n",
-        "import tensorflow as tf\n",
-        "from tensorflow.keras.layers import LeakyReLU, Dense, Reshape, Conv2DTranspose, Conv2D, Flatten\n",
-        "\n",
-        "# Define the generator model\n",
-        "def build_generator(latent_dim):\n",
-        "    model = tf.keras.Sequential()\n",
-        "    model.add(Dense(128 * 7 * 7, activation=\"relu\", input_shape=(latent_dim,)))\n",
-        "    model.add(Reshape((7, 7, 128)))\n",
-        "    model.add(Conv2DTranspose(128, (5, 5), strides=(2, 2), padding=\"same\", activation=\"relu\"))\n",
-        "    model.add(Conv2DTranspose(64, (5, 5), strides=(2, 2), padding=\"same\", activation=\"relu\"))\n",
-        "    model.add(Conv2D(1, (5, 5), padding=\"same\", activation=\"sigmoid\"))\n",
-        "    return model\n",
-        "\n",
-        "# Define the discriminator model\n",
-        "def build_discriminator(input_shape):\n",
-        "    model = tf.keras.Sequential()\n",
-        "    model.add(Conv2D(64, (5, 5), strides=(2, 2), padding=\"same\", input_shape=input_shape))\n",
-        "    model.add(LeakyReLU(alpha=0.2))  # Use the imported LeakyReLU function\n",
-        "    model.add(Conv2D(128, (5, 5), strides=(2, 2), padding=\"same\"))\n",
-        "    model.add(LeakyReLU(alpha=0.2))\n",
-        "    model.add(Flatten())\n",
-        "    model.add(Dense(1, activation=\"sigmoid\"))\n",
-        "    return model\n",
-        "\n",
-        "# Create the GAN model\n",
-        "def build_gan(generator, discriminator):\n",
-        "    discriminator.trainable = False\n",
-        "    model = tf.keras.Sequential([generator, discriminator])\n",
-        "    return model\n",
-        "\n",
-        "# Train the GAN model\n",
-        "def train_gan(gan, dataset, epochs, batch_size, latent_dim):\n",
-        "    # Compile the generator and discriminator models\n",
-        "    generator.compile(loss=\"binary_crossentropy\", optimizer=\"adam\")\n",
-        "    discriminator.compile(loss=\"binary_crossentropy\", optimizer=\"adam\")\n",
-        "\n",
-        "    # Train the GAN for the specified number of epochs\n",
-        "    for epoch in range(epochs):\n",
-        "        for batch in dataset:\n",
-        "            # Train the discriminator\n",
-        "            discriminator.trainable = True\n",
-        "            real_images = batch\n",
-        "            fake_images = generator(tf.random.normal((batch_size, latent_dim)))\n",
-        "            discriminator_loss_real = discriminator(tf.reshape(real_images, (-1, 28, 28, 1)))  # Reshape real_images\n",
-        "            discriminator_loss_fake = discriminator(fake_images)\n",
-        "            discriminator_loss = tf.reduce_mean(discriminator_loss_real - discriminator_loss_fake)\n",
-        "            discriminator.train_on_batch(real_images, tf.ones_like(real_images))\n",
-        "            discriminator.train_on_batch(fake_images, tf.zeros_like(fake_images))\n",
-        "\n",
-        "            # Train the generator\n",
-        "            discriminator.trainable = False\n",
-        "            generator_loss = gan(tf.random.normal((batch_size, latent_dim)))\n",
-        "            generator.train_on_batch(tf.random.normal((batch_size, latent_dim)), tf.ones_like(real_images))\n",
-        "\n",
-        "        # Print epoch summary\n",
-        "        print(f\"Epoch: {epoch + 1}/{epochs}\")"
-      ],
-      "metadata": {
-        "id": "s-ViXVV_g2JT"
-      },
-      "execution_count": null,
-      "outputs": []
-    }
-  ]
-}
+# Import necessary libraries
+import tensorflow as tf
+from tensorflow.keras.layers import LeakyReLU, Dense, Reshape, Conv2DTranspose, Conv2D, Flatten
+
+# Define the generator model
+def build_generator(latent_dim):
+    model = tf.keras.Sequential()
+    model.add(Dense(128 * 7 * 7, activation="relu", input_shape=(latent_dim,)))
+    model.add(Reshape((7, 7, 128)))
+    model.add(Conv2DTranspose(128, (5, 5), strides=(2, 2), padding="same", activation="relu"))
+    model.add(Conv2DTranspose(64, (5, 5), strides=(2, 2), padding="same", activation="relu"))
+    model.add(Conv2D(1, (5, 5), padding="same", activation="sigmoid"))
+    return model
+
+# Define the discriminator model
+def build_discriminator(input_shape):
+    model = tf.keras.Sequential()
+    model.add(Conv2D(64, (5, 5), strides=(2, 2), padding="same", input_shape=input_shape))
+    model.add(LeakyReLU(alpha=0.2))  # Use the imported LeakyReLU function
+    model.add(Conv2D(128, (5, 5), strides=(2, 2), padding="same"))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Flatten())
+    model.add(Dense(1, activation="sigmoid"))
+    return model
+
+# Create the GAN model
+def build_gan(generator, discriminator):
+    discriminator.trainable = False
+    model = tf.keras.Sequential([generator, discriminator])
+    return model
+
+# Train the GAN model
+def train_gan(gan, dataset, epochs, batch_size, latent_dim):
+    # Compile the generator and discriminator models
+    generator.compile(loss="binary_crossentropy", optimizer="adam")
+    discriminator.compile(loss="binary_crossentropy", optimizer="adam")
+
+    # Train the GAN for the specified number of epochs
+    for epoch in range(epochs):
+        for batch in dataset:
+            # Train the discriminator
+            discriminator.trainable = True
+            real_images = batch
+            fake_images = generator(tf.random.normal((batch_size, latent_dim)))
+            discriminator_loss_real = discriminator(tf.reshape(real_images, (-1, 28, 28, 1)))  # Reshape real_images
+            discriminator_loss_fake = discriminator(fake_images)
+            discriminator_loss = tf.reduce_mean(discriminator_loss_real - discriminator_loss_fake)
+            discriminator.train_on_batch(real_images, tf.ones_like(real_images))
+            discriminator.train_on_batch(fake_images, tf.zeros_like(fake_images))
+
+            # Train the generator
+            discriminator.trainable = False
+            generator_loss = gan(tf.random.normal((batch_size, latent_dim)))
+            generator.train_on_batch(tf.random.normal((batch_size, latent_dim)), tf.ones_like(real_images))
+
+        # Print epoch summary
+        print(f"Epoch: {epoch + 1}/{epochs}")
