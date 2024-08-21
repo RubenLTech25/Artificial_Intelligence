@@ -1,4 +1,4 @@
-#My code to randomly generate a cat picture from the internet or using DALL-E
+#My code to randomly generate a cat picture from the internet or using DALL-E. Project will need a good UI and some addiitons in Flask to convert to full app. 
 
 
 import requests
