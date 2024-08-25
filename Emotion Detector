@@ -82,3 +82,35 @@ def emotion_detector(text_to_analyze):
 result = emotion_detector("I'm so happy today!")
 print(result)
 
+#server.py
+from flask import Flask, request, jsonify
+from emotion_detection.emotion_detection import emotion_detector
+
+app = Flask(__name__)
+
+@app.route('/emotionDetector', methods=['GET'])
+def detect_emotion():
+    text_to_analyze = request.args.get('textToAnalyze')
+    if not text_to_analyze:
+        return jsonify({'error': 'Invalid request. Please provide textToAnalyze parameter.'}), 400
+    
+    try:
+        response = emotion_detector(text_to_analyze)
+        if 'error' in response:
+            return jsonify(response), 500
+        
+        if response['dominant_emotion'] is None:
+            return jsonify({'error': 'Invalid text! Please try again!'}), 400
+        
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/')
+def home():
+    return "Welcome to the Emotion Detection API. Use the /emotionDetector endpoint to analyze text."
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
+
