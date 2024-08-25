@@ -27,3 +27,58 @@ def emotion_detector(text_to_analyze):
     dominant_emotion = max(emotion_scores, key=emotion_scores.get)
         
    
+#emotion detector with error handling
+
+import requests
+import json
+
+def emotion_detector(text_to_analyze):
+    if not text_to_analyze.strip():
+        return {'error': 'Invalid text! Please try again.'}
+    
+    url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
+    headers = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
+    input_json = { "raw_document": { "text": text_to_analyze } }
+    
+    try:
+        response = requests.post(url, json=input_json, headers=headers)
+        response.raise_for_status()  # Raise an HTTPError for bad responses
+        emotions = response.json()  # Assuming the response is in JSON format
+
+        # Extract required emotions and their scores
+        anger_score = emotions.get('anger', 0)
+        disgust_score = emotions.get('disgust', 0)
+        fear_score = emotions.get('fear', 0)
+        joy_score = emotions.get('joy', 0)
+        sadness_score = emotions.get('sadness', 0)
+        
+        # Determine the dominant emotion
+        emotion_scores = {
+            'anger': anger_score,
+            'disgust': disgust_score,
+            'fear': fear_score,
+            'joy': joy_score,
+            'sadness': sadness_score
+        }
+        dominant_emotion = max(emotion_scores, key=emotion_scores.get)
+        
+        # Return the formatted output
+        return {
+            'anger': anger_score,
+            'disgust': disgust_score,
+            'fear': fear_score,
+            'joy': joy_score,
+            'sadness': sadness_score,
+            'dominant_emotion': dominant_emotion
+        }
+    except requests.exceptions.RequestException as e:
+        return {'error': f'Network error: {e}'}
+    except json.JSONDecodeError:
+        return {'error': 'Failed to parse JSON response'}
+    except KeyError as e:
+        return {'error': f'Missing expected key in response: {e}'}
+
+# Example usage
+result = emotion_detector("I'm so happy today!")
+print(result)
+
