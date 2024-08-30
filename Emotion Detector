@@ -114,3 +114,36 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
 
+#second version for error handling
+from flask import Flask, request, jsonify
+from emotion_detection.emotion_detection import emotion_detector
+
+app = Flask(__name__)
+
+@app.route('/emotionDetector', methods=['GET'])
+def detect_emotion():
+    text_to_analyze = request.args.get('textToAnalyze')
+    if not text_to_analyze or text_to_analyze.strip() == "":
+        # Define a dictionary with all emotion keys set to None
+        empty_emotions = {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'error': 'Invalid text! Please try again!'
+        }
+        return jsonify(empty_emotions), 400
+
+    response = emotion_detector(text_to_analyze)
+    if response is None:
+        return jsonify({'error': 'Emotion detection failed.'}), 500
+
+    return jsonify({'dominant_emotion': response})
+
+@app.route('/')
+def home():
+    return "Welcome to the Emotion Detection API. Use the /emotionDetector endpoint to analyze text."
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
