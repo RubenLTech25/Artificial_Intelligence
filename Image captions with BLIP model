@@ -1,0 +1,232 @@
+#Setting up the environment
+pip3 install virtualenv 
+virtualenv my_env # create a virtual environment my_env
+source my_env/bin/activate # activate my_env
+
+# installing required libraries in my_env
+pip install langchain==0.1.11 gradio==4.21.0 transformers==4.38.2 bs4==0.0.2 requests==2.31.0 torch==2.2.1
+
+import requests
+from PIL import Image
+from transformers import AutoProcessor, BlipForConditionalGeneration
+# Load the pretrained processor and model
+processor = AutoProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
+
+#Loading image file
+# Load your image, DONT FORGET TO WRITE YOUR IMAGE NAME
+img_path = "YOUR IMAGE NAME.jpeg"
+# convert it into an RGB format 
+image = Image.open(img_path).convert('RGB')
+
+# You do not need a question for image captioning
+text = "the image of"
+inputs = processor(images=image, text=text, return_tensors="pt")
+
+# Generate a caption for the image
+outputs = model.generate(**inputs, max_length=50)
+
+# Decode the generated tokens to text
+caption = processor.decode(outputs[0], skip_special_tokens=True)
+# Print the caption
+print(caption)
+
+#Image captioning app with Gradio
+import gradio as gr
+def greet(name):
+    return "Hello " + name + "!"
+demo = gr.Interface(fn=greet, inputs="text", outputs="text")
+demo.launch(server_name="0.0.0.0", server_port= 7860)
+
+#Implement image captioning app with Gradio
+import gradio as gr
+import numpy as np
+from PIL import Image
+from transformers import AutoProcessor, BlipForConditionalGeneration
+
+processor = # write your code here
+model = # write your code here
+
+def caption_image(input_image: np.ndarray):
+    # Convert numpy array to PIL Image and convert to RGB
+    raw_image = Image.fromarray(input_image).convert('RGB')
+    
+    # Process the image
+    
+    # Generate a caption for the image
+    # Decode the generated tokens to text and store it into `caption`
+    
+    return caption
+
+iface = gr.Interface(
+    fn=caption_image, 
+    inputs=gr.Image(), 
+    outputs="text",
+    title="Image Captioning",
+    description="This is a simple web app for generating captions for images using a trained model."
+)
+
+#launch the app
+
+iface.launch()
+
+#sending a HTTP request to retrieve the webpage's content
+# URL of the page to scrape
+url = "https://en.wikipedia.org/wiki/IBM"
+# Download the page
+response = requests.get(url)
+# Parse the page with BeautifulSoup
+soup = BeautifulSoup(response.text, 'html.parser')
+
+# Find all img elements
+img_elements = soup.find_all('img')
+# Iterate over each img elements
+for img_element in img_elements:
+...
+
+#sample code to test pytho skills> complete it to run and activate program
+import requests
+from PIL import Image
+from io import BytesIO
+from bs4 import BeautifulSoup
+from transformers import AutoProcessor, BlipForConditionalGeneration
+# Load the pretrained processor and model
+processor = # fill the pretrained model
+model = # load the blip model
+# URL of the page to scrape
+url = "https://en.wikipedia.org/wiki/IBM"
+# Download the page
+response = requests.get(url)
+# Parse the page with BeautifulSoup
+soup = BeautifulSoup(response.text, 'html.parser')
+# Find all img elements
+img_elements = soup.find_all('img')
+# Open a file to write the captions
+with open("captions.txt", "w") as caption_file:
+    # Iterate over each img element
+    for img_element in img_elements:
+        img_url = img_element.get('src')
+        # Skip if the image is an SVG or too small (likely an icon)
+        if 'svg' in img_url or '1x1' in img_url:
+            continue
+ # Correct the URL if it's malformed
+        if img_url.startswith('//'):
+            img_url = 'https:' + img_url
+        elif not img_url.startswith('http://') and not img_url.startswith('https://'):
+            continue  # Skip URLs that don't start with http:// or https://
+        try:
+            # Download the image
+            response = requests.get(img_url)
+            # Convert the image data to a PIL Image
+            raw_image = Image.open(BytesIO(response.content))
+            if raw_image.size[0] * raw_image.size[1] < 400:  # Skip very small images
+                continue
+            
+            raw_image = raw_image.convert('RGB')
+            # Process the image
+            inputs = processor(raw_image, return_tensors="pt")
+            # Generate a caption for the image
+            out = model.generate(**inputs, max_new_tokens=50)
+            # Decode the generated tokens to text
+            caption = processor.decode(out[0], skip_special_tokens=True)
+            # Write the caption to the file, prepended by the image URL
+            caption_file.write(f"{img_url}: {caption}\n")
+        except Exception as e:
+            print(f"Error processing image {img_url}: {e}")
+            continue
+
+#sample solution
+import requests
+from PIL import Image
+from io import BytesIO
+from bs4 import BeautifulSoup
+from transformers import AutoProcessor, BlipForConditionalGeneration
+# Load the pretrained processor and model
+processor = AutoProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
+# URL of the page to scrape
+url = "https://en.wikipedia.org/wiki/IBM"
+# Download the page
+response = requests.get(url)
+# Parse the page with BeautifulSoup
+soup = BeautifulSoup(response.text, 'html.parser')
+# Find all img elements
+img_elements = soup.find_all('img')
+# Open a file to write the captions
+with open("captions.txt", "w") as caption_file:
+    # Iterate over each img element
+    for img_element in img_elements:
+        img_url = img_element.get('src')
+        # Skip if the image is an SVG or too small (likely an icon)
+        if 'svg' in img_url or '1x1' in img_url:
+            continue
+        # Correct the URL if it's malformed
+        if img_url.startswith('//'):
+            img_url = 'https:' + img_url
+        elif not img_url.startswith('http://') and not img_url.startswith('https://'):
+            continue  # Skip URLs that don't start with http:// or https://
+        try:
+            # Download the image
+            response = requests.get(img_url)
+            # Convert the image data to a PIL Image
+            raw_image = Image.open(BytesIO(response.content))
+            if raw_image.size[0] * raw_image.size[1] < 400:  # Skip very small images
+                continue
+            raw_image = raw_image.convert('RGB')
+            # Process the image
+            inputs = processor(raw_image, return_tensors="pt")
+            # Generate a caption for the image
+            out = model.generate(**inputs, max_new_tokens=50)
+            # Decode the generated tokens to text
+            caption = processor.decode(out[0], skip_special_tokens=True)
+            # Write the caption to the file, prepended by the image URL
+            caption_file.write(f"{img_url}: {caption}\n")
+        except Exception as e:
+            print(f"Error processing image {img_url}: {e}")
+            continue
+
+#Image captioning for local files
+import glob
+...
+# Specify the directory where your images are
+image_dir = "/path/to/your/images"
+image_exts = ["jpg", "jpeg", "png"]  # specify the image file extensions to search for
+# Open a file to write the captions
+with open("captions.txt", "w") as caption_file:
+# Iterate over each image file in the directory
+    for image_ext in image_exts:
+        for img_path in glob.glob(os.path.join(image_dir, f"*.{image_ext}")):
+            # Load your image
+            raw_image = Image.open(img_path).convert('RGB')
+            ...
+
+#Sample code for image captioning for local files
+import os
+import glob
+import requests
+from PIL import Image
+from transformers import Blip2Processor, Blip2ForConditionalGeneration #Blip2 models
+# Load the pretrained processor and model
+processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
+model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")
+# Specify the directory where your images are
+image_dir = "/path/to/your/images"
+image_exts = ["jpg", "jpeg", "png"]  # specify the image file extensions to search for
+# Open a file to write the captions
+with open("captions.txt", "w") as caption_file:
+    # Iterate over each image file in the directory
+    for image_ext in image_exts:
+        for img_path in glob.glob(os.path.join(image_dir, f"*.{image_ext}")):
+            # Load your image
+            raw_image = Image.open(img_path).convert('RGB')
+            # You do not need a question for image captioning
+            inputs = processor(raw_image, return_tensors="pt")
+            # Generate a caption for the image
+            out = model.generate(**inputs, max_new_tokens=50)
+            # Decode the generated tokens to text
+            caption = processor.decode(out[0], skip_special_tokens=True)
+            # Write the caption to the file, prepended by the image file name
+            caption_file.write(f"{os.path.basename(img_path)}: {caption}\n")
+
+
+
