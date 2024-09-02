@@ -1,0 +1,45 @@
+#Meta Llama 2
+from meta_llama import MetaLlama2
+# Initialize the model
+model = MetaLlama2(model_name='meta-llama-2')
+# Generate text based on a prompt
+prompt = "What is the future of artificial intelligence?"
+generated_text = model.generate_text(prompt)
+print("Generated Text:", generated_text)
+
+#Meta Llama Data Summerarization
+from meta_llama import MetaLlama2
+# Initialize the model
+model = MetaLlama2(model_name='meta-llama-2', task='summarization')
+# Summarize text
+text = """Artificial Intelligence (AI) has been a subject of fascination and intensive research for decades. AI technologies have evolved from basic algorithms to advanced machine learning models, profoundly impacting industries, healthcare, and everyday life. The future of AI promises even more revolutionary changes, with potential advancements in autonomous vehicles, personalized medicine, and intelligent automation."""
+summary = model.summarize(text)
+print("Summary:", summary)
+
+#OpenAI Whisper
+
+#Setting up
+pip install git+https://github.com/openai/whisper.git
+
+#Basic Transcription
+import whisper
+# Load the Whisper model
+model = whisper.load_model("base")
+# Transcribe the audio file
+result = model.transcribe("audio_example.mp3")
+# Output the transcription
+print(result["text"])
+
+#Integrating Whisper into Applications
+from flask import Flask, request
+import whisper
+app = Flask(__name__)
+model = whisper.load_model("base")
+@app.route("/transcribe", methods=["POST"])
+def transcribe_audio():
+    audio_file = request.files["audio"]
+    result = model.transcribe(audio_file)
+    return {"transcription": result["text"]}
+if __name__ == "__main__":
+    app.run(debug=True)
+
